@@ -6,5 +6,7 @@
 /activemqbeat.test
 *.pyc
 
-vendor
+vendor/
 
+data/
+logs/

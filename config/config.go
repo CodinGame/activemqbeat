@@ -6,9 +6,15 @@ package config
 import "time"
 
 type Config struct {
-	Period time.Duration `config:"period"`
+	Period   time.Duration `config:"period"`
+	Url      string        `config:"url"`
+	Username string        `config:"username"`
+	Password string        `config:"password"`
 }
 
 var DefaultConfig = Config{
-	Period: 1 * time.Second,
+	Period:   10 * time.Second,
+	Url:      "http://localhost:8161",
+	Username: "admin",
+	Password: "admin",
 }

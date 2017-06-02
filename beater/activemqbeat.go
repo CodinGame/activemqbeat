@@ -1,7 +1,10 @@
 package beater
 
 import (
+	"encoding/xml"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"time"
 
 	"github.com/elastic/beats/libbeat/beat"
@@ -16,6 +19,52 @@ type Activemqbeat struct {
 	done   chan struct{}
 	config config.Config
 	client publisher.Client
+}
+
+type Queues struct {
+	Queues []Queue `xml:"queue"`
+}
+
+type Queue struct {
+	Name  string `xml:"name,attr"`
+	Stats Stats  `xml:"stats"`
+}
+
+type Stats struct {
+	Size          int `xml:"size,attr"`
+	ConsumerCount int `xml:"consumerCount,attr"`
+	EnqueueCount  int `xml:"enqueueCount,attr"`
+	DequeueCount  int `xml:"dequeueCount,attr"`
+}
+
+func getActivemqMetrics(baseUrl string, username string, password string) (*Queues, error) {
+	client := &http.Client{}
+
+	queuesUrl := baseUrl + "/admin/xml/queues.jsp"
+
+	req, _ := http.NewRequest("GET", queuesUrl, nil)
+
+	req.SetBasicAuth(username, password)
+
+	resp, err := client.Do(req)
+
+	if err != nil {
+		logp.Err("Error retrieving queues from ActiveMQ", err.Error())
+		return nil, err
+	}
+
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	queues := Queues{}
+
+	err = xml.Unmarshal(body, &queues)
+
+	if err != nil {
+		logp.Err("Error parsing response body as XML", err.Error())
+		return nil, err
+	}
+
+	return &queues, nil
 }
 
 // Creates beater
@@ -37,7 +86,6 @@ func (bt *Activemqbeat) Run(b *beat.Beat) error {
 
 	bt.client = b.Publisher.Connect()
 	ticker := time.NewTicker(bt.config.Period)
-	counter := 1
 	for {
 		select {
 		case <-bt.done:
@@ -45,14 +93,41 @@ func (bt *Activemqbeat) Run(b *beat.Beat) error {
 		case <-ticker.C:
 		}
 
-		event := common.MapStr{
-			"@timestamp": common.Time(time.Now()),
-			"type":       b.Info.Name,
-			"counter":    counter,
+		activemq, err := getActivemqMetrics(
+			bt.config.Url,
+			bt.config.Username,
+			bt.config.Password,
+		)
+
+		if err != nil {
+			event := common.MapStr{
+				"@timestamp": common.Time(time.Now()),
+				"type":       b.Info.Name,
+				"error":      err.Error(),
+			}
+			bt.client.PublishEvent(event)
+			logp.Info("Event sent")
+			continue
 		}
-		bt.client.PublishEvent(event)
-		logp.Info("Event sent")
-		counter++
+
+		for _, queue := range activemq.Queues {
+			event := common.MapStr{
+				"@timestamp": common.Time(time.Now()),
+				"type":       b.Info.Name,
+				"activemq": common.MapStr{
+					"queue": common.MapStr{
+						"name":           queue.Name,
+						"size":           queue.Stats.Size,
+						"consumer_count": queue.Stats.ConsumerCount,
+						"enqueue_count":  queue.Stats.EnqueueCount,
+						"dequeue_count":  queue.Stats.DequeueCount,
+					},
+				},
+			}
+
+			bt.client.PublishEvent(event)
+			logp.Info("Event sent")
+		}
 	}
 }
 
