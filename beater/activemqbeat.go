@@ -21,7 +21,7 @@ type Activemqbeat struct {
 	client publisher.Client
 }
 
-type Queues struct {
+type ActivemqMetrics struct {
 	Queues []Queue `xml:"queue"`
 }
 
@@ -37,7 +37,7 @@ type Stats struct {
 	DequeueCount  int `xml:"dequeueCount,attr"`
 }
 
-func getActivemqMetrics(baseUrl string, username string, password string) (*Queues, error) {
+func getActivemqMetrics(baseUrl string, username string, password string) (*ActivemqMetrics, error) {
 	client := &http.Client{}
 
 	queuesUrl := baseUrl + "/admin/xml/queues.jsp"
@@ -55,16 +55,16 @@ func getActivemqMetrics(baseUrl string, username string, password string) (*Queu
 
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	queues := Queues{}
+	activemqMetrics := ActivemqMetrics{}
 
-	err = xml.Unmarshal(body, &queues)
+	err = xml.Unmarshal(body, &activemqMetrics)
 
 	if err != nil {
 		logp.Err("Error parsing response body as XML", err.Error())
 		return nil, err
 	}
 
-	return &queues, nil
+	return &activemqMetrics, nil
 }
 
 // Creates beater
