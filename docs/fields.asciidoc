@@ -21,17 +21,48 @@ grouped in the following categories:
 [[exported-fields-activemqbeat]]
 == activemqbeat Fields
 
-None
+Contains ActiveMQ data
+
 
 
 [float]
-=== counter
+=== queue.name
 
-type: long
+type: string
 
-required: True
+Name of the queue
 
-PLEASE UPDATE DOCUMENTATION
+
+[float]
+=== queue.size
+
+type: integer
+
+Number of pending messages
+
+
+[float]
+=== queue.consumer_count
+
+type: integer
+
+Number of consumers
+
+
+[float]
+=== queue.enqueue_count
+
+type: integer
+
+Number of messages enqueued
+
+
+[float]
+=== queue.dequeue_count
+
+type: integer
+
+Number of messages dequeued
 
 
 [[exported-fields-beat]]

@@ -1,9 +1,27 @@
 - key: activemqbeat
   title: activemqbeat
-  description:
+  description: Contains ActiveMQ data
   fields:
-    - name: counter
-      type: long
-      required: true
-      description: >
-        PLEASE UPDATE DOCUMENTATION
+    - name: queue
+      type: group
+      fields:
+        - name: name
+          type: string
+          description: >
+            Name of the queue
+        - name: size
+          type: integer
+          description: >
+            Number of pending messages
+        - name: consumer_count
+          type: integer
+          description: >
+            Number of consumers
+        - name: enqueue_count
+          type: integer
+          description: >
+            Number of messages enqueued
+        - name: dequeue_count
+          type: integer
+          description: >
+            Number of messages dequeued
