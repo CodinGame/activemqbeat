@@ -1,117 +1,58 @@
 # Activemqbeat
 
-Welcome to Activemqbeat.
+Beat to monitor an ActiveMQ instance.
 
-Ensure that this folder is at the following location:
-`${GOPATH}/src/github.com/codingame/activemqbeat`
 
-## Getting Started with Activemqbeat
+## How to run
 
-### Requirements
-
-* [Golang](https://golang.org/dl/) 1.7
-
-### Init Project
-To get running with Activemqbeat and also install the
-dependencies, run the following command:
+The easiest way to launch activemqbeat is to run it in a Docker container:
 
 ```
-make setup
-```
-
-It will create a clean git history for each major step. Note that you can always rewrite the history if you wish before pushing your changes.
-
-To push Activemqbeat in the git repository, run the following commands:
-
-```
-git remote set-url origin https://github.com/codingame/activemqbeat
-git push origin master
-```
-
-For further development, check out the [beat developer guide](https://www.elastic.co/guide/en/beats/libbeat/current/new-beat.html).
-
-### Build
-
-To build the binary for Activemqbeat run the command below. This will generate a binary
-in the same directory with the name activemqbeat.
-
-```
-make
+docker run codingame/activemqbeat
 ```
 
 
-### Run
+## Configuring activemqbeat
 
-To run Activemqbeat with debugging output enabled, run:
-
-```
-./activemqbeat -c activemqbeat.yml -e -d "*"
-```
-
-
-### Test
-
-To test Activemqbeat, run the following command:
+To override the default configuration, just link yours to `/etc/activemqbeat/activemqbeat.yml`:
 
 ```
-make testsuite
+docker run -d \
+  -v /directory/where/your/config/file/is/:/etc/activemqbeat \
+  --name activemqbeat \
+  codingame/activemqbeat
 ```
 
-alternatively:
-```
-make unit-tests
-make system-tests
-make integration-tests
-make coverage-report
-```
+Otherwise, you could create your own image with your custom configuration with a Dockerfile like:
 
-The test coverage is reported in the folder `./build/coverage/`
+```Dockerfile
+FROM codingame/activemqbeat
 
-### Update
-
-Each beat has a template for the mapping in elasticsearch and a documentation for the fields
-which is automatically generated based on `fields.yml` by running the following command.
-
-```
-make update
+COPY activemqbeat.yml /etc/activemqbeat/activemqbeat.yml
 ```
 
 
-### Cleanup
+## Exported fields
 
-To clean  Activemqbeat source code, run the following commands:
+Example output:
 
-```
-make fmt
-make simplify
-```
-
-To clean up the build directory and generated artifacts, run:
-
-```
-make clean
-```
-
-
-### Clone
-
-To clone Activemqbeat from the git repository, run the following commands:
-
-```
-mkdir -p ${GOPATH}/src/github.com/codingame/activemqbeat
-git clone https://github.com/codingame/activemqbeat ${GOPATH}/src/github.com/codingame/activemqbeat
+```json
+{
+  "activemq": {
+    "queue": {
+      "name": "my-queue",
+      "size": 4,
+      "consumer_count": 3,
+      "dequeue_count": 12,
+      "enqueue_count": 12
+    }
+  }
+}
 ```
 
+To get a detailed list of all generated fields, please read the [fields documentation page](docs/fields.asciidoc).
 
-For further development, check out the [beat developer guide](https://www.elastic.co/guide/en/beats/libbeat/current/new-beat.html).
 
+## Contributing to the project
 
-## Packaging
-
-The beat frameworks provides tools to crosscompile and package your beat for different platforms. This requires [docker](https://www.docker.com/) and vendoring as described above. To build packages of your beat, run the following command:
-
-```
-make package
-```
-
-This will fetch and create all images required for the build process. The hole process to finish can take several minutes.
+See [contributing instructions](CONTRIBUTING.md) to set up the project and build it on your machine.
