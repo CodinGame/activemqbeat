@@ -102,7 +102,7 @@ func (bt *Activemqbeat) Run(b *beat.Beat) error {
 		if err != nil {
 			event := common.MapStr{
 				"@timestamp": common.Time(time.Now()),
-				"type":       b.Info.Name,
+				"type":       b.Name,
 				"error":      err.Error(),
 			}
 			bt.client.PublishEvent(event)
@@ -113,7 +113,7 @@ func (bt *Activemqbeat) Run(b *beat.Beat) error {
 		for _, queue := range activemq.Queues {
 			event := common.MapStr{
 				"@timestamp": common.Time(time.Now()),
-				"type":       b.Info.Name,
+				"type":       b.Name,
 				"activemq": common.MapStr{
 					"queue": common.MapStr{
 						"name":           queue.Name,
