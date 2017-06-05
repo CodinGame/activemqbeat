@@ -15,7 +15,6 @@ grouped in the following categories:
 * <<exported-fields-activemqbeat>>
 * <<exported-fields-beat>>
 * <<exported-fields-cloud>>
-* <<exported-fields-kubernetes-processor>>
 
 --
 [[exported-fields-activemqbeat]]
@@ -28,7 +27,7 @@ Contains ActiveMQ data
 [float]
 === queue.name
 
-type: string
+type: text
 
 Name of the queue
 
@@ -85,12 +84,6 @@ The hostname as returned by the operating system on which the Beat is running.
 
 
 [float]
-=== beat.timezone
-
-The timezone as returned by the operating system on which the Beat is running.
-
-
-[float]
 === beat.version
 
 The version of the beat that generated this event.
@@ -119,40 +112,9 @@ Arbitrary tags that can be set per Beat and per transaction type.
 [float]
 === fields
 
-type: object
+type: dict
 
 Contains user configurable fields.
-
-
-[float]
-== error Fields
-
-Error fields containing additional info in case of errors.
-
-
-
-[float]
-=== error.message
-
-type: text
-
-Error message.
-
-
-[float]
-=== error.code
-
-type: long
-
-Error code.
-
-
-[float]
-=== error.type
-
-type: keyword
-
-Error type.
 
 
 [[exported-fields-cloud]]
@@ -174,12 +136,6 @@ Name of the cloud provider. Possible values are ec2, gce, or digitalocean.
 === meta.cloud.instance_id
 
 Instance ID of the host machine.
-
-
-[float]
-=== meta.cloud.instance_name
-
-Instance name of the host machine.
 
 
 [float]
@@ -210,62 +166,5 @@ Name of the project in Google Cloud.
 === meta.cloud.region
 
 Region in which this host is running.
-
-
-[[exported-fields-kubernetes-processor]]
-== kubernetes Fields
-
-beta[]
-Kubernetes metadata added by the kubernetes processor
-
-
-
-
-[float]
-=== kubernetes.pod.name
-
-type: keyword
-
-Kubernetes pod name
-
-
-[float]
-=== kubernetes.namespace
-
-type: keyword
-
-Kubernetes namespace
-
-
-[float]
-=== kubernetes.labels
-
-type: object
-
-Kubernetes labels map
-
-
-[float]
-=== kubernetes.annotations
-
-type: object
-
-Kubernetes annotations map
-
-
-[float]
-=== kubernetes.container.name
-
-type: keyword
-
-Kubernetes container name
-
-
-[float]
-=== kubernetes.container.image
-
-type: keyword
-
-Kubernetes container image
 
 

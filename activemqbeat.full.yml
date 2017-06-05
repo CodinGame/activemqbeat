@@ -4,7 +4,10 @@
 
 activemqbeat:
   # Defines how often an event is sent to the output
-  period: 1s
+  period: 10s
+  url: "http://localhost:8161"
+  username: "admin"
+  password: "admin"
 
 #================================ General ======================================
 
@@ -71,18 +74,10 @@ activemqbeat:
 #           http.code: 200
 #
 # The following example enriches each event with metadata from the cloud
-# provider about the host machine. It works on EC2, GCE, DigitalOcean,
-# Tencent Cloud, and Alibaba Cloud.
+# provider about the host machine. It works on EC2, GCE, and DigitalOcean.
 #
 #processors:
-#- add_cloud_metadata: ~
-#
-# The following example enriches each event with the machine's local time zone
-# offset from UTC.
-#
-#processors:
-#- add_locale:
-#    format: offset
+#- add_cloud_metadata:
 #
 
 #================================ Outputs ======================================
@@ -119,7 +114,7 @@ output.elasticsearch:
 
   # Optional index name. The default is "activemqbeat" plus date
   # and generates [activemqbeat-]YYYY.MM.DD keys.
-  #index: "activemqbeat-%{[beat.version]}-%{+yyyy.MM.dd}"
+  #index: "activemqbeat-%{+yyyy.MM.dd}"
 
   # Optional ingest node pipeline. By default no pipeline will be used.
   #pipeline: ""
@@ -150,6 +145,38 @@ output.elasticsearch:
   # If `bulk_max_size` is reached before this interval expires, addition bulk index
   # requests are made.
   #flush_interval: 1s
+
+  # A template is used to set the mapping in Elasticsearch
+  # By default template loading is enabled and the template is loaded.
+  # These settings can be adjusted to load your own template or overwrite existing ones.
+
+  # Set to false to disable template loading.
+  #template.enabled: true
+
+  # Template name. By default the template name is activemqbeat.
+  #template.name: "activemqbeat"
+
+  # Path to template file
+  #template.path: "${path.config}/activemqbeat.template.json"
+
+  # Overwrite existing template
+  #template.overwrite: false
+
+  # If set to true, activemqbeat checks the Elasticsearch version at connect time, and if it
+  # is 2.x, it loads the file specified by the template.versions.2x.path setting. The
+  # default is true.
+  #template.versions.2x.enabled: true
+
+  # Path to the Elasticsearch 2.x version of the template file.
+  #template.versions.2x.path: "${path.config}/activemqbeat.template-es2x.json"
+
+  # If set to true, activemqbeat checks the Elasticsearch version at connect time, and if it
+  # is 6.x, it loads the file specified by the template.versions.6x.path setting. The
+  # default is true.
+  #template.versions.6x.enabled: true
+
+  # Path to the Elasticsearch 6.x version of the template file.
+  #template.versions.6x.path: "${path.config}/activemqbeat.template-es6x.json"
 
   # Use SSL settings for HTTPS. Default is true.
   #ssl.enabled: true
@@ -542,74 +569,40 @@ output.elasticsearch:
 # These settings control loading the sample dashboards to the Kibana index. Loading
 # the dashboards is disabled by default and can be enabled either by setting the
 # options here, or by using the `-setup` CLI flag.
-#setup.dashboards.enabled: false
+#dashboards.enabled: false
 
 # The URL from where to download the dashboards archive. By default this URL
 # has a value which is computed based on the Beat name and version. For released
 # versions, this URL points to the dashboard archive on the artifacts.elastic.co
 # website.
-#setup.dashboards.url:
+#dashboards.url:
 
 # The directory from where to read the dashboards. It is used instead of the URL
 # when it has a value.
-#setup.dashboards.directory:
+#dashboards.directory:
 
 # The file archive (zip file) from where to read the dashboards. It is used instead
 # of the URL when it has a value.
-#setup.dashboards.file:
+#dashboards.file:
 
 # If this option is enabled, the snapshot URL is used instead of the default URL.
-#setup.dashboards.snapshot: false
+#dashboards.snapshot: false
 
 # The URL from where to download the snapshot version of the dashboards. By default
 # this has a value which is computed based on the Beat name and version.
-#setup.dashboards.snapshot_url
+#dashboards.snapshot_url
 
 # In case the archive contains the dashboards from multiple Beats, this lets you
 # select which one to load. You can load all the dashboards in the archive by
 # setting this to the empty string.
-#setup.dashboards.beat: activemqbeat
+#dashboards.beat: activemqbeat
 
 # The name of the Kibana index to use for setting the configuration. Default is ".kibana"
-#setup.dashboards.kibana_index: .kibana
+#dashboards.kibana_index: .kibana
 
 # The Elasticsearch index name. This overwrites the index name defined in the
 # dashboards and index pattern. Example: testbeat-*
-#setup.dashboards.index:
-
-#============================== Template =====================================
-
-# A template is used to set the mapping in Elasticsearch
-# By default template loading is enabled and the template is loaded.
-# These settings can be adjusted to load your own template or overwrite existing ones.
-
-# Set to false to disable template loading.
-#setup.template.enabled: true
-
-# Template name. By default the template name is activemqbeat.
-# The version of the beat will always be appended to the given name
-# so the final name is activemqbeat-%{[beat.version]}.
-#setup.template.name: "activemqbeat"
-
-# Path to fields.yml file to generate the template
-#setup.template.fields: "${path.config}/fields.yml"
-
-# Overwrite existing template
-#setup.template.overwrite: false
-
-
-#================================ HTTP Endpoint ======================================
-# Each beat can expose internal data points through a http endpoint. For security
-# reason the endpoint is disabled by default. This feature is currently in beta.
-
-# Defines if http endpoint is enabled
-#http.enabled: false
-
-# Host to expose the http endpoint to. It is recommended to use only localhost.
-#http.host: localhost
-
-# Port on which the http endpoint is exposed. Default is 5066
-#http.port: 5066
+#dashboards.index:
 
 #================================ Logging ======================================
 # There are three options for the log output: syslog, file, stderr.
