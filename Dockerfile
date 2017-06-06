@@ -1,30 +1,29 @@
 FROM golang:1.8
 
-# Install glide
-RUN go get github.com/Masterminds/glide
-
 # Install tools
-RUN apt-get update \
+RUN go get github.com/Masterminds/glide \
+    && apt-get update \
     && apt-get install -y \
         python-pip \
         python-virtualenv \
     && apt-get clean
 
-ENV ACTIVEMQBEAT_PATH "$GOPATH/src/github.com/codingame/activemqbeat"
+ENV ACTIVEMQBEAT_HOME "$GOPATH/src/github.com/codingame/activemqbeat"
 
-COPY . $ACTIVEMQBEAT_PATH
+COPY . $ACTIVEMQBEAT_HOME
 
-WORKDIR $ACTIVEMQBEAT_PATH
-
-# Install dependencies
-RUN glide install
+WORKDIR $ACTIVEMQBEAT_HOME
 
 # Create activemqbeat binary
-RUN make update && make
+# Create config directory
+# Clean up
+RUN make setup \
+    && make \
+    && mkdir -p /etc/activemqbeat/ \
+    && cp $ACTIVEMQBEAT_HOME/activemqbeat.yml /etc/activemqbeat/activemqbeat.yml \
+    && rm -rf build/ vendor/
 
-RUN mkdir -p /etc/activemqbeat/ \
-    && cp $ACTIVEMQBEAT_PATH/activemqbeat.yml /etc/activemqbeat/activemqbeat.yml \
-    && cp $ACTIVEMQBEAT_PATH/activemqbeat /usr/local/bin/activemqbeat
+ENV PATH "$ACTIVEMQBEAT_HOME:$PATH"
 
 ENTRYPOINT [ "activemqbeat" ]
 
